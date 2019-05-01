@@ -43,7 +43,7 @@ except NameError:
     basestring = str
 try:
     FOREVER = float("inf")
-except:
+except ValueError:
     import math
     FOREVER = math.inf
 
@@ -1317,19 +1317,19 @@ class Region(object):
         by ``offset``) """
         return Location(self.getX() + (self.getW() / 2), self.getY() + self.getH() + offset)
 
-    def union(ur):
+    def union(self, ur):
         """ Returns a new region that contains both this region and the specified region """
         x = min(self.getX(), ur.getX())
         y = min(self.getY(), ur.getY())
         w = max(self.getBottomRight().x, ur.getBottomRight().x) - x
         h = max(self.getBottomRight().y, ur.getBottomRight().y) - y
         return Region(x, y, w, h)
-    def intersection(ir):
+    def intersection(self, ir):
         """ Returns a new region that contains the overlapping portion of this region and the specified region (may be None) """
-        x = max(self.getX(), ur.getX())
-        y = max(self.getY(), ur.getY())
-        w = min(self.getBottomRight().x, ur.getBottomRight().x) - x
-        h = min(self.getBottomRight().y, ur.getBottomRight().y) - y
+        x = max(self.getX(), ir.getX())
+        y = max(self.getY(), ir.getY())
+        w = min(self.getBottomRight().x, ir.getBottomRight().x) - x
+        h = min(self.getBottomRight().y, ir.getBottomRight().y) - y
         if w > 0 and h > 0:
             return Region(x, y, w, h)
         return None
