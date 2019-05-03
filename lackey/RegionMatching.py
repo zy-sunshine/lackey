@@ -24,6 +24,7 @@ from .Exceptions import FindFailed, ImageMissing
 from .SettingsDebug import Settings, Debug
 from .TemplateMatchers import PyramidTemplateMatcher as TemplateMatcher
 from .Geometry import Location
+from .utils import cv2_imread, cv2_imwrite
 
 if platform.system() == "Windows" or os.environ.get('READTHEDOCS') == 'True':
     # Avoid throwing an error if it's just being imported for documentation purposes
@@ -111,7 +112,7 @@ class Pattern(object):
             print(Settings.ImagePaths)
             raise ImageMissing(ImageMissingEvent(pattern=self, event_type="IMAGEMISSING"))
         self.path = full_path
-        self.image = cv2.imread(self.path)
+        self.image = cv2_imread(self.path)
         return self
     def setImage(self, img):
         self.image = img
@@ -530,7 +531,7 @@ class Region(object):
             if not isinstance(pattern, basestring):
                 raise TypeError("find expected a string [image path] or Pattern object")
             pattern = Pattern(pattern)
-        needle = cv2.imread(pattern.path)
+        needle = cv2_imread(pattern.path)
         if needle is None:
             raise ValueError("Unable to load image '{}'".format(pattern.path))
         needle_height, needle_width, needle_channels = needle.shape
@@ -611,7 +612,7 @@ class Region(object):
                 raise TypeError("find expected a string [image path] or Pattern object")
             pattern = Pattern(pattern)
 
-        needle = cv2.imread(pattern.path)
+        needle = cv2_imread(pattern.path)
         match = True
         timeout = time.time() + seconds
 
@@ -646,7 +647,7 @@ class Region(object):
             if not isinstance(pattern, basestring):
                 raise TypeError("find expected a string [image path] or Pattern object")
             pattern = Pattern(pattern)
-        needle = cv2.imread(pattern.path)
+        needle = cv2_imread(pattern.path)
         if needle is None:
             raise ValueError("Unable to load image '{}'".format(pattern.path))
         needle_height, needle_width, needle_channels = needle.shape
@@ -1137,7 +1138,7 @@ class Region(object):
         if self._raster[0] == 0 or self._raster[1] == 0:
             return self
         rowHeight = self.h / self._raster[0]
-        columnWidth = self.h / self._raster[1]
+        columnWidth = self.w / self._raster[1]
         if column < 0:
             # If column is negative, count backwards from the end
             column = self._raster[1] - column
@@ -1285,7 +1286,7 @@ class Region(object):
             target_file = os.path.join(path, tfile)
         else:
             target_file = os.path.join(path, name+".png")
-        cv2.imwrite(target_file, bitmap)
+        cv2_imwrite(target_file, bitmap)
         return target_file
     def getLastScreenImage(self):
         """ Gets the last image taken on this region's screen """
@@ -1294,7 +1295,7 @@ class Region(object):
         """ Saves the last image taken on this region's screen to a temporary file """
         bitmap = self.getLastScreenImage()
         _, target_file = tempfile.mkstemp(".png")
-        cv2.imwrite(target_file, bitmap)
+        cv2_imwrite(target_file, bitmap)
     
     def asOffset(self):
         """ Returns bottom right corner as offset from top left corner """
@@ -1754,7 +1755,7 @@ class ObserveEvent(object):
             raise TypeError("This is a(n) {} event, but method getImage is only valid for the following event types: ({})".format(self._type, ", ".join(valid_types)))
         elif self._pattern is None:
             raise ValueError("This event's pattern was not set!")
-        return cv2.imread(self._pattern.path)
+        return cv2_imread(self._pattern.path)
     def getMatch(self):
         valid_types = ["APPEAR", "VANISH"]
         if self._type not in valid_types:
